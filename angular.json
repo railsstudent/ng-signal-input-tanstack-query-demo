@@ -7,7 +7,9 @@
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
-          "style": "scss"
+          "style": "scss",
+          "inlineStyle": true,
+          "inlineTemplate": true
         }
       },
       "root": "",
@@ -48,7 +50,8 @@
                   "maximumError": "4kb"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "baseHref": "https://ng-signal-input-tanstack-query-demo.github.io"
             },
             "development": {
               "optimization": false,
