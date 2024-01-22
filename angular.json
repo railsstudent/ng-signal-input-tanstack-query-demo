@@ -51,7 +51,7 @@
                 }
               ],
               "outputHashing": "all",
-              "baseHref": "https://ng-signal-input-tanstack-query-demo.github.io"
+              "baseHref": "https://railsstudent.github.io/ng-signal-input-tanstack-query-demo/"
             },
             "development": {
               "optimization": false,
