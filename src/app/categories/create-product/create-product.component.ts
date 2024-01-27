@@ -1,9 +1,11 @@
 import { JsonPipe, TitleCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewChild, computed, inject, input, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
-import { injectMutation, QueryClient } from '@tanstack/angular-query-experimental';
+import { QueryClient, injectMutation } from '@tanstack/angular-query-experimental';
 import { CreateProductViewModel } from '../interfaces/create-product.interface';
 import { CategoryService } from '../services/category.service';
+import { Product } from '../../products/interfaces/product.interface';
+import { CategoryProducts } from '../interfaces/category-products.interface';
 
 @Component({
   selector: 'app-create-product',
@@ -44,39 +46,69 @@ export class CreateProductComponent {
     category: this.category(),
   }));
 
-  queryClient = new QueryClient();
-
-  mutation = injectMutation(() => ({
+  mutation = injectMutation((client: QueryClient) => ({
     mutationFn: (viewModel: CreateProductViewModel) => {
       return this.categoryService.addProduct(viewModel)
     },
     onMutate: async (variables) => {
+      const categoryProductsKey =['category_products'] as const;
+      const categoryKey = ['categories', this.category()] as const;
 
       // Cancel current queries for the product
-      // await this.queryClient.cancelQueries({ queryKey: ['category_products'] });
+      await client.cancelQueries({ queryKey: categoryProductsKey });
 
       // // Cancel current queries for the category products list
-      // await this.queryClient.cancelQueries({ queryKey: ['categories', this.category()] });
+      await client.cancelQueries({ queryKey: categoryKey });
 
-      // const oldData = this.queryClient.getQueryData(['category_products']);
-      // console.log('onMutate, category_products', oldData,
-      //   this.queryClient.getQueryState(['category_products'])
-      // );
+      // snapshot the previous values
+      const previousAllProducts = client.getQueryData<CategoryProducts[]>(categoryProductsKey);
+      const previousCategoryProducts = client.getQueryData<Product[]>(categoryKey);
+      const newProduct: Product = {
+        ...variables,
+        id: Date.now(),
+        image: '',
+      };
 
-      console.log('onMutate', variables);
+      console.log(previousCategoryProducts, previousAllProducts, newProduct);
+
+      client.setQueryData(categoryKey, (old: Product[]) => ([...old, newProduct]));
+      if (previousAllProducts) {
+        const categoryProducts = previousAllProducts.find((catProducts) => catProducts.category === this.category());
+        if (categoryProducts) {
+          categoryProducts.products = [...categoryProducts.products, newProduct]; 
+        } else {
+          
+        }
+        // client.setQueryData();
+      }
+
+
+      // console.log('onMutate', variables);
+      return {
+        previousAllProducts,
+        previousCategoryProducts,
+        newProduct,
+      }
     },
     onError: (error, variables, context) => {
       // An error happened!
+      const categoryProductsKey =['category_products'] as const;
+      const categoryKey = ['categories', this.category()] as const;
+
+      // rollback changes
+      client.setQueryData(categoryKey, context?.previousCategoryProducts); 
+      client.setQueryData(categoryProductsKey, context?.previousAllProducts);
       console.log('onError', error, variables, context);
     },
     onSuccess: (data, variables, context) => {
       console.log('onSuccess', data, variables, context);
+
       this.resetViewModel();
     },
-    onSettled: (data, error, variables, context) => {
-      // Error or success... doesn't matter!
-      console.log('onSettled', data, error, variables, context);
-    },
+    // onSettled: (data, error, variables, context) => {
+    //   // Error or success... doesn't matter!
+    //   console.log('onSettled', data, error, variables, context);
+    // },
   }));
 
   category = input.required<string>();
