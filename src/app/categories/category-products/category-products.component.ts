@@ -3,12 +3,14 @@ import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core
 import { injectQuery } from '@tanstack/angular-query-experimental';
 import { ProductComponent } from '../../products/product/product.component';
 import { CategoryService } from '../services/category.service';
+import { CreateProductComponent } from '../create-product/create-product.component';
 
 @Component({
   selector: 'app-category-products',
   standalone: true,
-  imports: [ProductComponent, TitleCasePipe],
+  imports: [ProductComponent, TitleCasePipe, CreateProductComponent],
   template: `
+    <app-create-product [category]="this.category()" />
     <h2>{{ category() | titlecase }}</h2>
     @if (productsQuery.isPending()) {
       <p>Loading...</p>

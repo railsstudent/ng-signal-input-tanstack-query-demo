@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { catchError, forkJoin, lastValueFrom, map, of, switchMap } from 'rxjs';
+import { catchError, forkJoin, lastValueFrom, map, of, switchMap, tap, throwError } from 'rxjs';
 import { Product } from '../interfaces/product.interface';
+import { CreateProductWithImage } from '../interfaces/create-product.interface';
 
 const PRODUCTS_URL = 'https://fakestoreapi.com/products';
 const FEATURED_PRODUCTS_URL = 'https://gist.githubusercontent.com/railsstudent/ae150ae2b14abb207f131596e8b283c3/raw/131a6b3a51dfb4d848b75980bfe3443b1665704b/featured-products.json';
@@ -11,6 +12,8 @@ const FEATURED_PRODUCTS_URL = 'https://gist.githubusercontent.com/railsstudent/a
 })
 export class ProductService {
   private readonly httpClient = inject(HttpClient);
+  // for demo purpose only.  In prod app,  backend app generates a unique product id
+  private nextId = 21;
 
   getProduct(id: number | undefined): Promise<Product | null> {
     if (!id) {
@@ -46,5 +49,19 @@ export class ProductService {
 
   getFeaturedProducts(): Promise<Product[]> {
     return lastValueFrom(this.getFeaturedProductsQuery())
+  }
+
+  createProduct(newProduct: CreateProductWithImage): Promise<Product> {
+    return lastValueFrom(this.httpClient.post<Product>(PRODUCTS_URL, newProduct).pipe(
+      map((product) => ({
+        ...product,
+        id: this.nextId,
+      })),
+      tap(() => this.nextId = this.nextId + 1),
+      catchError((err) => {
+        console.error('error', err);
+        return throwError(() => err);
+      })
+    ));
   }
 }
