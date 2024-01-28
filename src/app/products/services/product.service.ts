@@ -59,6 +59,6 @@ export class ProductService {
     };
 
     this.nextId = this.nextId + 1;
-    return firstValueFrom(of(newProductWithId).pipe(delay(3000)));
+    return firstValueFrom(of(newProductWithId).pipe(delay(2000)));
   }
 }
