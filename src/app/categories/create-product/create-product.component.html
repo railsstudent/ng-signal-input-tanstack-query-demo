@@ -47,9 +47,11 @@
       </div>
     }
   </div>
+  <!--
   <pre>
     {{ this.viewModel() | json }}
   </pre>
+  -->
   <button type="submit" [disabled]="form.invalid || mutation.isPending()">Submit</button>
 
   @if (mutation.isPending()) {

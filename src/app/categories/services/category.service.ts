@@ -43,10 +43,6 @@ export class CategoryService {
   }
 
   addProduct(newProduct: CreateProduct): Promise<Product> {
-    const image = 'https://via.assets.so/img.jpg?w=100&h=100&tc=yellow&bg=blue&t=product';
-    return this.productService.createProduct({
-      ...newProduct,
-      image
-    });
+    return this.productService.createProduct(newProduct);
   }
 }

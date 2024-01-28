@@ -17,7 +17,13 @@ import { Product } from '../interfaces/product.interface';
       </label>
       <label for="name">
         <span id="name" name="name">Title: </span>
-        <span><a [routerLink]="['/products', product().id]" >{{product().title}}</a></span>
+        <span>
+          @if (product().id > 20) {
+            {{ product(). title }}
+          } @else {
+            <a [routerLink]="['/products', product().id]" >{{product().title}}</a>
+          }
+        </span>
       </label>
       <label for="price">
         <span id="price" name="price">Price: </span>

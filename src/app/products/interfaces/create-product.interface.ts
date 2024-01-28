@@ -3,9 +3,6 @@ export interface CreateProduct {
   price: number;
   description: string;
   category: string;
-}
-
-export interface CreateProductWithImage extends CreateProduct {
   image: string;
 }
 

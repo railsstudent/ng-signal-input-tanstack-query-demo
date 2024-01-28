@@ -11,7 +11,9 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes, withComponentInputBinding()),
     provideAngularQuery(new QueryClient({
       defaultOptions: {
-        
+        queries: {
+          staleTime: Infinity,
+        }
       }
     })),
     {
