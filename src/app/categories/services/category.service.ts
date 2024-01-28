@@ -1,8 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { lastValueFrom, map, combineLatestWith } from 'rxjs';
-import { CategoryProducts } from '../interfaces/category-products.interface';
+import { combineLatestWith, lastValueFrom, map } from 'rxjs';
+import { CreateProduct } from '../../products/interfaces/create-product.interface';
 import { Product } from '../../products/interfaces/product.interface';
+import { ProductService } from '../../products/services/product.service';
+import { CategoryProducts } from '../interfaces/category-products.interface';
 
 const PRODUCTS_URL = 'https://fakestoreapi.com/products';
 const CATEGORIES_URL = 'https://fakestoreapi.com/products/categories';
@@ -13,6 +15,7 @@ const CATEGORY_URL = 'https://fakestoreapi.com/products/category';
 })
 export class CategoryService {
   private readonly httpClient = inject(HttpClient);
+  private productService = inject(ProductService);
 
   categories$ = lastValueFrom(this.httpClient.get<string[]>(CATEGORIES_URL));
 
@@ -37,5 +40,9 @@ export class CategoryService {
 
   getCategory(category: string): Promise<Product[]> {
     return lastValueFrom(this.httpClient.get<Product[]>(`${CATEGORY_URL}/${category}`));
+  }
+
+  addProduct(newProduct: CreateProduct): Promise<Product> {
+    return this.productService.createProduct(newProduct);
   }
 }

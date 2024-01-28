@@ -1,0 +1,62 @@
+<h3>Create new product in {{ category() | titlecase }}</h3>
+<form #f="ngForm" (ngSubmit)="createProduct()">
+  <div>
+    <label for="name">
+      <span>Title: </span>
+      <input name="title" id="title" [ngModel]="title()"
+        (ngModelChange)="title.set($event)" required minlength="3"
+        #titleCtrl="ngModel" [disabled]="this.mutation.isPending()" 
+      />
+    </label>
+    @if (titleCtrl.errors?.['required'] && titleCtrl.dirty) {
+      <div class="form-errors">
+        Title is a required field
+      </div>
+    } @else if (titleCtrl.errors?.['minlength'] && titleCtrl.dirty) {
+      <div class="form-errors">
+        Minimum length of title is 3
+      </div>
+    } 
+  </div>
+  <div>
+    <label for="description">
+      <span>Description: </span>
+      <textarea name="description" id="description" rows="5" cols="50"[ngModel]="description()" 
+        (ngModelChange)="description.set($event)" required #descriptionCtrl="ngModel" 
+        [disabled]="this.mutation.isPending()"
+      >
+      </textarea>
+    </label>
+    @if (descriptionCtrl.errors?.['required'] && descriptionCtrl.dirty) {
+      <div class="form-errors">
+        Description is a required field
+      </div>
+    }
+  </div>
+  <div>
+    <label for="price">
+      <span>Price: </span>
+      <input name="price" id="price" type="number" min="0.1"
+      [ngModel]="price()" (ngModelChange)="price.set($event)"
+      required #priceCtrl="ngModel" [disabled]="this.mutation.isPending()" />
+    </label>
+    @if (priceCtrl.errors?.['min'] && priceCtrl.dirty) {
+      <div class="form-errors">
+        Price must be at least 0.1
+      </div>
+    } @else if (priceCtrl.errors?.['required'] && priceCtrl.dirty) {
+      <div class="form-errors">
+        Price is a required field
+      </div>
+    }
+  </div>
+  <button type="submit" [disabled]="this.form.invalid || this.mutation.isPending()">Submit</button>
+
+  @if (mutation.isPending()) {
+    <p>Adding new product</p>
+  } @else if (mutation.isError()) {
+    <p>{{ mutation.error().message }}</p>
+  } @else if (mutation.isSuccess()) {
+    <p>New product created</p>
+  }
+</form>

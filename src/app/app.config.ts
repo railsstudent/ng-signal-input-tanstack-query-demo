@@ -9,7 +9,13 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideHttpClient(),
     provideRouter(routes, withComponentInputBinding()),
-    provideAngularQuery(new QueryClient()),
+    provideAngularQuery(new QueryClient({
+      defaultOptions: {
+        queries: {
+          staleTime: Infinity,
+        }
+      }
+    })),
     {
       provide: TitleStrategy,
       useClass: ShopPageTitleStrategy,
