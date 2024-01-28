@@ -71,13 +71,17 @@ export class CreateProductComponent {
 
       console.log(previousCategoryProducts, previousAllProducts, newProduct);
 
-      client.setQueryData(categoryKey, (old: Product[]) => ([...old, newProduct]));
+      if (previousCategoryProducts) {
+        client.setQueryData(categoryKey, (old: Product[]) => ([...old, newProduct]));
+      } else {
+        client.setQueryData(categoryKey, () => ([newProduct]));
+      }
       if (previousAllProducts) {
         const categoryProducts = previousAllProducts.find((catProducts) => catProducts.category === this.category());
         if (categoryProducts) {
           categoryProducts.products = [...categoryProducts.products, newProduct]; 
         } else {
-          
+
         }
         // client.setQueryData();
       }

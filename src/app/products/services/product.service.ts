@@ -31,24 +31,21 @@ export class ProductService {
     );
   }
 
-  private getFeaturedProductsQuery() {
-    return this.httpClient.get<{ ids: number[] }>(FEATURED_PRODUCTS_URL)
-      .pipe(
-        map(({ ids }) => ids), 
-        switchMap((ids) => {
-          const observables$ = ids.map((id) => this.getProductQuery(id));
-          return forkJoin(observables$);
-        }),
-        map((productOrUndefinedArrays) => {
-          const products: Product[] = [];
-          productOrUndefinedArrays.forEach((p) => p && products.push(p));
-          return products;
-        }),
-      );
-  }
-
   getFeaturedProducts(): Promise<Product[]> {
-    return lastValueFrom(this.getFeaturedProductsQuery())
+    const featureProducts$ = this.httpClient.get<{ ids: number[] }>(FEATURED_PRODUCTS_URL)
+    .pipe(
+      map(({ ids }) => ids), 
+      switchMap((ids) => {
+        const observables$ = ids.map((id) => this.getProductQuery(id));
+        return forkJoin(observables$);
+      }),
+      map((productOrUndefinedArrays) => {
+        const products: Product[] = [];
+        productOrUndefinedArrays.forEach((p) => p && products.push(p));
+        return products;
+      }),
+    );
+    return lastValueFrom(featureProducts$);
   }
 
   createProduct(newProduct: CreateProductWithImage): Promise<Product> {
