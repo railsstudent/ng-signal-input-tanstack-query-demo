@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, ViewChild, computed, inject, input,
 import { FormsModule, NgForm } from '@angular/forms';
 import { QueryClient, injectMutation } from '@tanstack/angular-query-experimental';
 import { Product } from '../../products/interfaces/product.interface';
+import { ProductService } from '../../products/services/product.service';
 import { CategoryProducts } from '../interfaces/category-products.interface';
 import { CreateProductViewModel } from '../interfaces/create-product.interface';
 import { CategoryService } from '../services/category.service';
@@ -35,6 +36,7 @@ export class CreateProductComponent {
 
   category = input.required<string>();
   categoryService = inject(CategoryService);
+  productService = inject(ProductService);
 
   title = signal('');
   description = signal('');
@@ -54,45 +56,23 @@ export class CreateProductComponent {
   }
 
   mutation = injectMutation((client: QueryClient) => ({
-    mutationFn: (viewModel: CreateProductViewModel) => {
-      return this.categoryService.addProduct(viewModel)
-    },
+    mutationFn: (viewModel: CreateProductViewModel) => this.categoryService.addProduct(viewModel),
     onMutate: async (variables) => {
-      // Cancel current queries for the product
       await client.cancelQueries({ queryKey: this.categoryProductsKey });
-
-      // // Cancel current queries for the category products list
       await client.cancelQueries({ queryKey: this.categoryKey });
 
-      // snapshot the previous values
-      const previousAllProducts = client.getQueryData<CategoryProducts[]>(this.categoryProductsKey);
-      const previousCategoryProducts = client.getQueryData<Product[]>(this.categoryKey);
       const newProduct: Product = {
         ...variables,
-        id: Date.now(),
+        id: this.productService.getNewProductId(),
       };
 
-      if (previousCategoryProducts) {
-        client.setQueryData(this.categoryKey, (old: Product[]) => ([...old, newProduct]));
-      }
-
-      if (previousAllProducts) {
-        const newAllProducts: CategoryProducts[] = previousAllProducts.map((previousResult) => {
-          if (previousResult.category === this.category()) {
-            return {
-              category: previousResult.category,
-              products: [...previousResult.products, newProduct],
-            };
-          } 
-          return previousResult;
-        });
-        client.setQueryData(this.categoryProductsKey, newAllProducts);
-      }
+      // snapshot the previous values
+      const previousCategoryProducts = this.optimisticUpdateCategoryProducts(client, newProduct);
+      const previousAllProducts = this.optimisticUpdateAllProducts(client, newProduct);
 
       return {
         previousAllProducts,
         previousCategoryProducts,
-        newProduct,
       }
     },
     onSettled: (data, error, _, context) => {
@@ -103,32 +83,39 @@ export class CreateProductComponent {
         client.setQueryData(this.categoryKey, previousCategoryProducts); 
         client.setQueryData(this.categoryProductsKey, previousAllProducts);
       } else {
-        if (previousCategoryProducts) {
-          client.setQueryData(this.categoryKey, (old: Product[]) => old.map((product) => {
-            return product.id === context?.newProduct.id ? data : product;
-          }));
-        }
-  
-        if (previousAllProducts) {
-          client.setQueryData(this.categoryProductsKey, (old: CategoryProducts[]) => {
-            return old.map((catProducts) => {
-              if (catProducts.category === this.category()) {
-                return {
-                  category: catProducts.category,
-                  products: catProducts.products.map((product) => 
-                    product.id === context.newProduct.id ? data : product
-                  ),
-                }
-              }
-              return catProducts;
-            })
-          });
-        } 
-
         this.resetViewModel();
       }
+
+      // in real production system,  call client.invalidateQueries to refetch data
+      // client.invalidateQueries({ queryKey: this.categoryKey});
+      // client.invalidateQueries({ queryKey: this.categoryProductsKey});
     }
   }));
+
+  private optimisticUpdateAllProducts(client: QueryClient, newProduct: Product) {
+    const previousAllProducts = client.getQueryData<CategoryProducts[]>(this.categoryProductsKey);
+    if (previousAllProducts) {
+      const newAllProducts: CategoryProducts[] = previousAllProducts.map((previousResult) => {
+        if (previousResult.category === this.category()) {
+          return {
+            category: previousResult.category,
+            products: [...previousResult.products, newProduct],
+          };
+        }
+        return previousResult;
+      });
+      client.setQueryData(this.categoryProductsKey, newAllProducts);
+    }
+    return previousAllProducts;
+  }
+
+  private optimisticUpdateCategoryProducts(client: QueryClient, newProduct: Product) {
+    const previousCategoryProducts = client.getQueryData<Product[]>(this.categoryKey);
+    if (previousCategoryProducts) {
+      client.setQueryData(this.categoryKey, (old: Product[]) => ([...old, newProduct]));
+    }
+    return previousCategoryProducts;
+  }
 
   resetViewModel() {
     this.title.set('');

@@ -5,7 +5,7 @@
       <span>Title: </span>
       <input name="title" id="title" [ngModel]="title()"
         (ngModelChange)="title.set($event)" required minlength="3"
-        #titleCtrl="ngModel"  
+        #titleCtrl="ngModel" [disabled]="this.mutation.isPending()" 
       />
     </label>
     @if (titleCtrl.errors?.['required'] && titleCtrl.dirty) {
@@ -21,7 +21,10 @@
   <div>
     <label for="description">
       <span>Description: </span>
-      <textarea name="description" id="description" rows="8" cols="50"[ngModel]="description()" (ngModelChange)="description.set($event)" required #descriptionCtrl="ngModel" >
+      <textarea name="description" id="description" rows="5" cols="50"[ngModel]="description()" 
+        (ngModelChange)="description.set($event)" required #descriptionCtrl="ngModel" 
+        [disabled]="this.mutation.isPending()"
+      >
       </textarea>
     </label>
     @if (descriptionCtrl.errors?.['required'] && descriptionCtrl.dirty) {
@@ -35,7 +38,7 @@
       <span>Price: </span>
       <input name="price" id="price" type="number" min="0.1"
       [ngModel]="price()" (ngModelChange)="price.set($event)"
-      required #priceCtrl="ngModel" />
+      required #priceCtrl="ngModel" [disabled]="this.mutation.isPending()" />
     </label>
     @if (priceCtrl.errors?.['min'] && priceCtrl.dirty) {
       <div class="form-errors">
@@ -47,12 +50,7 @@
       </div>
     }
   </div>
-  <!--
-  <pre>
-    {{ this.viewModel() | json }}
-  </pre>
-  -->
-  <button type="submit" [disabled]="form.invalid || mutation.isPending()">Submit</button>
+  <button type="submit" [disabled]="this.form.invalid || this.mutation.isPending()">Submit</button>
 
   @if (mutation.isPending()) {
     <p>Adding new product</p>

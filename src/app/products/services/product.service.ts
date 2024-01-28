@@ -48,6 +48,10 @@ export class ProductService {
     return lastValueFrom(featureProducts$);
   }
 
+  getNewProductId(): number {
+    return this.nextId;
+  }
+
   createProduct(newProduct: CreateProduct): Promise<Product> {
     const newProductWithId = {
       ...newProduct,
