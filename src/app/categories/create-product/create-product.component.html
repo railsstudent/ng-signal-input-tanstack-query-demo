@@ -1,5 +1,5 @@
 <h3>Create new product in {{ vm.category | titlecase }}</h3>
-<form #f="ngForm" (ngSubmit)="createProduct()">
+<form #f="ngForm" (ngSubmit)="createProduct()" (formValueChanbge)="formValue.set($event)">
   <div>
     <label for="name">
       <span>Title: </span>

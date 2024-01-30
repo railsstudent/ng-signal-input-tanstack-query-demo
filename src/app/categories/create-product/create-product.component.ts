@@ -1,7 +1,8 @@
 import { TitleCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, ViewChild, computed, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewChild, computed, inject, input, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { QueryClient, injectMutation } from '@tanstack/angular-query-experimental';
+import { FormDirective } from '../../form.directive';
 import { Product } from '../../products/interfaces/product.interface';
 import { ProductService } from '../../products/services/product.service';
 import { CategoryProducts } from '../interfaces/category-products.interface';
@@ -14,7 +15,7 @@ const INITIAL_FORM_VALUES = { title: '', description: '', price: 1 };
 @Component({
   selector: 'app-create-product',
   standalone: true,
-  imports: [FormsModule, TitleCasePipe],
+  imports: [FormsModule, TitleCasePipe, FormDirective],
   templateUrl: './create-product.component.html',
   styles: `
     form {
@@ -33,7 +34,7 @@ const INITIAL_FORM_VALUES = { title: '', description: '', price: 1 };
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CreateProductComponent implements OnInit {
+export class CreateProductComponent {
   @ViewChild('f', { static: true })
   form!: NgForm;
 
@@ -120,12 +121,6 @@ export class CreateProductComponent implements OnInit {
       client.setQueryData(this.categoryKey, (old: Product[]) => ([...old, newProduct]));
     }
     return previousCategoryProducts;
-  }
-
-  ngOnInit(): void {
-    this.form.form.valueChanges.subscribe((v) => { 
-      this.formValue.set(v);
-    });
   }
 
   resetViewModel() {
