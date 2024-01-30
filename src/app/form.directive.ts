@@ -10,7 +10,7 @@ export class FormDirective {
   private readonly ngForm = inject(NgForm, { self: true });
 
   @Output()
-  public readonly formValueChanbge = this.ngForm.form.valueChanges.pipe(
+  public readonly formValueChange = this.ngForm.form.valueChanges.pipe(
     debounceTime(0)
   );
 }
