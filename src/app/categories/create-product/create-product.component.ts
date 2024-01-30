@@ -1,17 +1,21 @@
 import { TitleCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, ViewChild, computed, inject, input, signal } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { AbstractControl, FormsModule } from '@angular/forms';
 import { QueryClient, injectMutation } from '@tanstack/angular-query-experimental';
+import { FormDirective } from '../../form.directive';
 import { Product } from '../../products/interfaces/product.interface';
 import { ProductService } from '../../products/services/product.service';
 import { CategoryProducts } from '../interfaces/category-products.interface';
 import { CreateProductViewModel } from '../interfaces/create-product.interface';
 import { CategoryService } from '../services/category.service';
+import { CreateProductFormModel } from '../types/create-product-form-model.type';
+
+const INITIAL_FORM_VALUES = { title: '', description: '', price: 1 };
 
 @Component({
   selector: 'app-create-product',
   standalone: true,
-  imports: [FormsModule, TitleCasePipe],
+  imports: [FormsModule, TitleCasePipe, FormDirective],
   templateUrl: './create-product.component.html',
   styles: `
     form {
@@ -31,24 +35,25 @@ import { CategoryService } from '../services/category.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CreateProductComponent {
-  @ViewChild('f', { static: true })
-  form!: NgForm;
-
   category = input.required<string>();
   categoryService = inject(CategoryService);
   productService = inject(ProductService);
 
-  title = signal('');
-  description = signal('');
-  price = signal(1);
+  formValue = signal<CreateProductFormModel>(INITIAL_FORM_VALUES);
+  formInvalid = signal<boolean>(false);
+  formControls = signal<AbstractControl<any, any>[]>([]);
 
-  viewModel = computed<CreateProductViewModel>(() => ({
-    title: this.title(),
-    price: this.price(),
-    description: this.description(),
+  viewModel = computed(() => ({
+    formValue: this.formValue(),
     category: this.category(),
     image: 'https://via.assets.so/img.jpg?w=100&h=100&tc=yellow&bg=blue&t=product',
+    isFormDisabled: this.formInvalid() || this.mutation.isPending(),
+    isControlDisabled: this.mutation.isPending(),
   }));
+
+  get vm() {
+    return this.viewModel();
+  }
 
   categoryProductsKey =['category_products'] as const;
   get categoryKey() { 
@@ -96,7 +101,7 @@ export class CreateProductComponent {
     const previousAllProducts = client.getQueryData<CategoryProducts[]>(this.categoryProductsKey);
     if (previousAllProducts) {
       const newAllProducts: CategoryProducts[] = previousAllProducts.map((previousResult) => {
-        if (previousResult.category === this.category()) {
+        if (previousResult.category === this.vm.category) {
           return {
             category: previousResult.category,
             products: [...previousResult.products, newProduct],
@@ -118,16 +123,22 @@ export class CreateProductComponent {
   }
 
   resetViewModel() {
-    this.title.set('');
-    this.description.set('');
-    this.price.set(1);
+    this.formValue.set(INITIAL_FORM_VALUES);
 
-    for (const key of Object.keys(this.form.controls)) {
-      this.form.controls[key].markAsPristine();
+    for (const control of this.formControls()) {
+      control.markAsPristine();
     }
   }
 
   createProduct() {
-    this.mutation.mutate(this.viewModel());
+    const { formValue, category, image } = this.vm;
+    const payload: CreateProductViewModel = {
+      title: formValue.title || '',
+      description: formValue.description || '',
+      price: formValue.price || 1,
+      category,
+      image,
+    };
+    this.mutation.mutate(payload);
   }
 }
