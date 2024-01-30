@@ -1,5 +1,5 @@
 import { Directive, Output, inject } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { AbstractControl, NgForm } from '@angular/forms';
 import { debounceTime, map } from 'rxjs';
 
 @Directive({
@@ -17,5 +17,16 @@ export class FormDirective {
   @Output()
   public readonly invalidChange = this.formValueChange.pipe(
     map((() => this.ngForm.invalid || false))
+  );
+
+  @Output()
+  public readonly formControlsArray = this.ngForm.ngSubmit.pipe(
+    map(() => { 
+      const controls: AbstractControl[] = [];
+      for (const key of Object.keys(this.ngForm.controls)) {
+        controls.push(this.ngForm.controls[key]);
+      }
+      return controls;
+    })
   );
 }

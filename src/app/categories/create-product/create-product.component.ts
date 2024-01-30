@@ -1,6 +1,6 @@
 import { TitleCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, ViewChild, computed, inject, input, signal } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { AbstractControl, FormsModule } from '@angular/forms';
 import { QueryClient, injectMutation } from '@tanstack/angular-query-experimental';
 import { FormDirective } from '../../form.directive';
 import { Product } from '../../products/interfaces/product.interface';
@@ -35,15 +35,13 @@ const INITIAL_FORM_VALUES = { title: '', description: '', price: 1 };
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CreateProductComponent {
-  @ViewChild('f', { static: true })
-  form!: NgForm;
-
   category = input.required<string>();
   categoryService = inject(CategoryService);
   productService = inject(ProductService);
 
   formValue = signal<CreateProductFormModel>(INITIAL_FORM_VALUES);
   formInvalid = signal<boolean>(false);
+  formControls = signal<AbstractControl<any, any>[]>([]);
 
   viewModel = computed(() => ({
     formValue: this.formValue(),
@@ -103,7 +101,7 @@ export class CreateProductComponent {
     const previousAllProducts = client.getQueryData<CategoryProducts[]>(this.categoryProductsKey);
     if (previousAllProducts) {
       const newAllProducts: CategoryProducts[] = previousAllProducts.map((previousResult) => {
-        if (previousResult.category === this.category()) {
+        if (previousResult.category === this.vm.category) {
           return {
             category: previousResult.category,
             products: [...previousResult.products, newProduct],
@@ -127,8 +125,8 @@ export class CreateProductComponent {
   resetViewModel() {
     this.formValue.set(INITIAL_FORM_VALUES);
 
-    for (const key of Object.keys(this.form.controls)) {
-      this.form.controls[key].markAsPristine();
+    for (const control of this.formControls()) {
+      control.markAsPristine();
     }
   }
 
