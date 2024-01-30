@@ -1,12 +1,10 @@
-<h3>Create new product in {{ category() | titlecase }}</h3>
+<h3>Create new product in {{ vm.category | titlecase }}</h3>
 <form #f="ngForm" (ngSubmit)="createProduct()">
   <div>
     <label for="name">
       <span>Title: </span>
-      <input name="title" id="title" [ngModel]="title()"
-        (ngModelChange)="title.set($event)" required minlength="3"
-        #titleCtrl="ngModel" [disabled]="this.mutation.isPending()" 
-      />
+      <input name="title" id="title" [ngModel]="vm.formValue.title" required minlength="3"
+        #titleCtrl="ngModel" [disabled]="vm.isControlDisabled" />
     </label>
     @if (titleCtrl.errors?.['required'] && titleCtrl.dirty) {
       <div class="form-errors">
@@ -21,10 +19,8 @@
   <div>
     <label for="description">
       <span>Description: </span>
-      <textarea name="description" id="description" rows="5" cols="50"[ngModel]="description()" 
-        (ngModelChange)="description.set($event)" required #descriptionCtrl="ngModel" 
-        [disabled]="this.mutation.isPending()"
-      >
+      <textarea name="description" id="description" rows="5" cols="50"[ngModel]="vm.formValue.description" 
+        required #descriptionCtrl="ngModel" [disabled]="vm.isControlDisabled">
       </textarea>
     </label>
     @if (descriptionCtrl.errors?.['required'] && descriptionCtrl.dirty) {
@@ -36,9 +32,8 @@
   <div>
     <label for="price">
       <span>Price: </span>
-      <input name="price" id="price" type="number" min="0.1"
-      [ngModel]="price()" (ngModelChange)="price.set($event)"
-      required #priceCtrl="ngModel" [disabled]="this.mutation.isPending()" />
+      <input name="price" id="price" type="number" min="1" [ngModel]="vm.formValue.price"
+      required #priceCtrl="ngModel" [disabled]="vm.isControlDisabled" />
     </label>
     @if (priceCtrl.errors?.['min'] && priceCtrl.dirty) {
       <div class="form-errors">
@@ -50,7 +45,7 @@
       </div>
     }
   </div>
-  <button type="submit" [disabled]="this.form.invalid || this.mutation.isPending()">Submit</button>
+  <button type="submit" [disabled]="vm.isFormDisabled">Submit</button>
 
   @if (mutation.isPending()) {
     <p>Adding new product</p>
