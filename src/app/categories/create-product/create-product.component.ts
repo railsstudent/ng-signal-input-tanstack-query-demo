@@ -43,12 +43,13 @@ export class CreateProductComponent {
   productService = inject(ProductService);
 
   formValue = signal<CreateProductFormModel>(INITIAL_FORM_VALUES);
+  formInvalid = signal<boolean>(false);
 
   viewModel = computed(() => ({
     formValue: this.formValue(),
     category: this.category(),
     image: 'https://via.assets.so/img.jpg?w=100&h=100&tc=yellow&bg=blue&t=product',
-    isFormDisabled: this.form.invalid || this.mutation.isPending(),
+    isFormDisabled: this.formInvalid() || this.mutation.isPending(),
     isControlDisabled: this.mutation.isPending(),
   }));
 
