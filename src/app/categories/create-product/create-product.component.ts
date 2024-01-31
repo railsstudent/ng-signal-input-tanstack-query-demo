@@ -1,6 +1,6 @@
 import { TitleCasePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
-import { AbstractControl, FormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { QueryClient, injectMutation } from '@tanstack/angular-query-experimental';
 import { FormDirective } from '../../form.directive';
 import { Product } from '../../products/interfaces/product.interface';
@@ -41,7 +41,7 @@ export class CreateProductComponent {
 
   formValue = signal<CreateProductFormModel>(INITIAL_FORM_VALUES);
   formInvalid = signal<boolean>(false);
-  formControls = signal<AbstractControl<any, any>[]>([]);
+  shouldMarkAsPristine = signal(false);
 
   viewModel = computed(() => ({
     formValue: this.formValue(),
@@ -124,13 +124,11 @@ export class CreateProductComponent {
 
   resetViewModel() {
     this.formValue.set(INITIAL_FORM_VALUES);
-
-    for (const control of this.formControls()) {
-      control.markAsPristine();
-    }
+    this.shouldMarkAsPristine.set(true);    
   }
 
   createProduct() {
+    this.shouldMarkAsPristine.set(false);
     const { formValue, category, image } = this.vm;
     const payload: CreateProductViewModel = {
       title: formValue.title || '',

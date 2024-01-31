@@ -1,5 +1,5 @@
-import { Directive, Output, inject } from '@angular/core';
-import { AbstractControl, NgForm } from '@angular/forms';
+import { Directive, Output, effect, inject, input } from '@angular/core';
+import { NgForm } from '@angular/forms';
 import { debounceTime, map } from 'rxjs';
 
 @Directive({
@@ -9,6 +9,18 @@ import { debounceTime, map } from 'rxjs';
 export class FormDirective {
   private readonly ngForm = inject(NgForm, { self: true });
 
+  shouldMarkAsPristine = input(false);
+
+  constructor() {
+    effect(() => {
+      if (this.shouldMarkAsPristine()) {
+        for (const key of Object.keys(this.ngForm.controls)) {
+          this.ngForm.controls[key].markAsPristine();
+        }
+      }    
+    });
+  }
+
   @Output()
   public readonly formValueChange = this.ngForm.form.valueChanges.pipe(
     debounceTime(0)
@@ -17,16 +29,5 @@ export class FormDirective {
   @Output()
   public readonly invalidChange = this.formValueChange.pipe(
     map((() => this.ngForm.invalid || false))
-  );
-
-  @Output()
-  public readonly formControlsArray = this.ngForm.ngSubmit.pipe(
-    map(() => { 
-      const controls: AbstractControl[] = [];
-      for (const key of Object.keys(this.ngForm.controls)) {
-        controls.push(this.ngForm.controls[key]);
-      }
-      return controls;
-    })
   );
 }
