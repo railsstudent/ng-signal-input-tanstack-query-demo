@@ -9,6 +9,7 @@ import { CategoryProducts } from '../interfaces/category-products.interface';
 import { CreateProductViewModel } from '../interfaces/create-product.interface';
 import { CategoryService } from '../services/category.service';
 import { CreateProductFormModel } from '../types/create-product-form-model.type';
+import { createProductValidations } from '../validations/create-product.validations';
 
 const INITIAL_FORM_VALUES = { title: '', description: '', price: 1 };
 
@@ -128,6 +129,8 @@ export class CreateProductComponent {
   }
 
   createProduct() {
+    console.log(createProductValidations(this.formValue(), 'title').errors);
+
     this.shouldMarkAsPristine.set(false);
     const { formValue, category, image } = this.vm;
     const payload: CreateProductViewModel = {

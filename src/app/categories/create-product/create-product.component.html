@@ -38,7 +38,7 @@
     </label>
     @if (priceCtrl.errors?.['min'] && priceCtrl.dirty) {
       <div class="form-errors">
-        Price must be at least 0.1
+        Price must be at least 1
       </div>
     } @else if (priceCtrl.errors?.['required'] && priceCtrl.dirty) {
       <div class="form-errors">
