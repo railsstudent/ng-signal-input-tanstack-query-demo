@@ -21,6 +21,7 @@
     "@tanstack/angular-query-experimental": "5.17.19",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
+    "vest": "5.2.8",
     "zone.js": "~0.14.3"
   },
   "devDependencies": {
