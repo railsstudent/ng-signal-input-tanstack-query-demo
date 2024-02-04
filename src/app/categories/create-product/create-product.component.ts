@@ -2,7 +2,7 @@ import { TitleCasePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { QueryClient, injectMutation } from '@tanstack/angular-query-experimental';
-import { FormDirective } from '../../forms/form.directive';
+import { FormDirective, FormModelDirective } from '../../forms';
 import { Product } from '../../products/interfaces/product.interface';
 import { ProductService } from '../../products/services/product.service';
 import { CategoryProducts } from '../interfaces/category-products.interface';
@@ -16,7 +16,7 @@ const INITIAL_FORM_VALUES = { title: '', description: '', price: 1 };
 @Component({
   selector: 'app-create-product',
   standalone: true,
-  imports: [FormsModule, TitleCasePipe, FormDirective],
+  imports: [FormsModule, TitleCasePipe, FormDirective, FormModelDirective],
   templateUrl: './create-product.component.html',
   styles: `
     form {
@@ -40,9 +40,10 @@ export class CreateProductComponent {
   categoryService = inject(CategoryService);
   productService = inject(ProductService);
 
-  formValue = signal<CreateProductFormModel>(INITIAL_FORM_VALUES);
+  protected readonly formValue = signal<CreateProductFormModel>(INITIAL_FORM_VALUES);
   formInvalid = signal<boolean>(false);
   shouldMarkAsPristine = signal(false);
+  protected readonly suite = signal(createProductValidations);
 
   viewModel = computed(() => ({
     formValue: this.formValue(),
