@@ -72,5 +72,5 @@ export class FormControlWrapperComponent {
     const isNgModelGroupTouched = !!this.ngModelGroup?.control?.errors && !!this.ngModelGroup?.touched;
 
     return isNgModelTouched || isNgModelGroupTouched;
-  })
+  });
 }

@@ -50,7 +50,6 @@ export class CreateProductComponent {
     formValue: this.formValue(),
     category: this.category(),
     image: 'https://via.assets.so/img.jpg?w=100&h=100&tc=yellow&bg=blue&t=product',
-    isFormDisabled: this.formInvalid() || this.mutation.isPending(),
     isControlDisabled: this.mutation.isPending(),
   }));
 
@@ -131,7 +130,9 @@ export class CreateProductComponent {
   }
 
   createProduct() {
-    console.log(createProductValidations(this.formValue(), 'title').errors);
+    if (this.formInvalid() ) {
+      return;
+    }
 
     this.shouldMarkAsUntouched.set(false);
     const { formValue, category, image } = this.vm;
