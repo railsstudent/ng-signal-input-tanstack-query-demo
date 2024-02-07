@@ -43,7 +43,7 @@ export class CreateProductComponent {
 
   protected readonly formValue = signal<CreateProductFormModel>(INITIAL_FORM_VALUES);
   formInvalid = signal<boolean>(false);
-  shouldMarkAsPristine = signal(false);
+  shouldMarkAsUntouched = signal(false);
   protected readonly suite = signal(createProductValidations);
 
   viewModel = computed(() => ({
@@ -127,13 +127,13 @@ export class CreateProductComponent {
 
   resetViewModel() {
     this.formValue.set(INITIAL_FORM_VALUES);
-    this.shouldMarkAsPristine.set(true);    
+    this.shouldMarkAsUntouched.set(true);    
   }
 
   createProduct() {
     console.log(createProductValidations(this.formValue(), 'title').errors);
 
-    this.shouldMarkAsPristine.set(false);
+    this.shouldMarkAsUntouched.set(false);
     const { formValue, category, image } = this.vm;
     const payload: CreateProductViewModel = {
       title: formValue.title || '',

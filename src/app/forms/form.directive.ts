@@ -1,6 +1,6 @@
-import { Directive, Input, Output, effect, inject, input } from '@angular/core';
+import { Directive, Output, effect, inject, input } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { debounceTime, map, tap } from 'rxjs';
+import { debounceTime, map } from 'rxjs';
 import { SuiteResult } from 'vest';
 
 @Directive({
@@ -10,16 +10,14 @@ import { SuiteResult } from 'vest';
 export class FormDirective<T> {
   readonly ngForm = inject(NgForm, { self: true });
 
-  shouldMarkAsPristine = input(false);
+  shouldMarkAsUntouched = input(false);
   public formValue = input<T | null>(null);
   public suite = input<((formValue: T, field: string) => SuiteResult<string, string>) | null>(null);
 
   constructor() {
     effect(() => {
-      if (this.shouldMarkAsPristine()) {
-        for (const key of Object.keys(this.ngForm.controls)) {
-          this.ngForm.controls[key].markAsPristine();
-        }
+      if (this.shouldMarkAsUntouched()) {
+        this.ngForm.form.markAsUntouched()
       }    
     });
 
@@ -29,14 +27,7 @@ export class FormDirective<T> {
   }
 
   @Output()
-  public readonly formValueChange = this.ngForm.form.valueChanges.pipe(
-    debounceTime(0),
-    tap(() => {
-      console.log(this.ngForm.form, this.ngForm);
-      console.log(this.ngForm.form.controls['title'].errors);
-      console.log(this.ngForm.form.controls['description'].errors);
-      console.log(this.ngForm.form.controls['price'].errors);
-    }));
+  public readonly formValueChange = this.ngForm.form.valueChanges.pipe(debounceTime(0));
 
   @Output()
   public readonly invalidChange = this.formValueChange.pipe(

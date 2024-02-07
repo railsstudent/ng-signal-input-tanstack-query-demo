@@ -1,4 +1,3 @@
-import { JsonPipe } from '@angular/common';
 import { Component, ContentChild, computed, inject } from '@angular/core';
 import { NgModel, NgModelGroup } from '@angular/forms';
 
@@ -11,18 +10,16 @@ import { NgModel, NgModelGroup } from '@angular/forms';
       <ng-content></ng-content>
     </div>
     <div class="input-wrapper__errors">
-      {{ ngModel?.touched }}
       @if (!ngModelGroup && ngModel?.control?.errors && ngModel?.touched) {
-        <ul class="form-errors">
+        <ul class="errors">
           @for (error of ngModel?.control?.errors?.['errors']; track error) {
             <li>{{ error }}</li>
           }
         </ul>  
       }
 
-      {{ ngModelGroup?.touched }}
       @if (ngModelGroup?.control?.errors && ngModelGroup?.touched) {
-        <ul class="form-errors">
+        <ul class="errors">
           @for (error of ngModelGroup?.control?.errors?.['errors']; track error) {
             <li>{{ error }}</li>
           }
@@ -49,6 +46,13 @@ import { NgModel, NgModelGroup } from '@angular/forms';
       flex-direction: column;
       padding-bottom: 8px;
     }
+
+    .errors {
+      padding: 0.5rem;
+      border-radius: 8px;
+      color: red;
+      background: pink;
+    }
   `,
   host: {
     'class.input-wrapper--invalid': 'invalid()',
@@ -64,8 +68,8 @@ export class FormControlWrapperComponent {
   });
 
   invalid = computed(() => {
-    const isNgModelTouched = !this.ngModelGroup && this.ngModel?.control?.errors && this.ngModel?.touched;
-    const isNgModelGroupTouched = this.ngModelGroup?.control?.errors && this.ngModelGroup?.touched;
+    const isNgModelTouched = !this.ngModelGroup && !!this.ngModel?.control?.errors && !!this.ngModel?.touched;
+    const isNgModelGroupTouched = !!this.ngModelGroup?.control?.errors && !!this.ngModelGroup?.touched;
 
     return isNgModelTouched || isNgModelGroupTouched;
   })
