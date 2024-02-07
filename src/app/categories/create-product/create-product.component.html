@@ -2,50 +2,27 @@
 <form (ngSubmit)="createProduct()" (formValueChange)="formValue.set($event)" 
   (invalidChange)="formInvalid.set($event)" [shouldMarkAsPristine]="shouldMarkAsPristine()"
   [formValue]="formValue()" [suite]="suite()">
-  <div>
+  <div app-control-wrapper>
     <label for="name">
       <span>Title: </span>
       <input name="title" id="title" [ngModel]="vm.formValue.title" required minlength="3"
         #titleCtrl="ngModel" [disabled]="vm.isControlDisabled" />
     </label>
-    @if (titleCtrl.errors?.['required'] && titleCtrl.dirty) {
-      <div class="form-errors">
-        Title is a required field
-      </div>
-    } @else if (titleCtrl.errors?.['minlength'] && titleCtrl.dirty) {
-      <div class="form-errors">
-        Minimum length of title is 3
-      </div>
-    } 
   </div>
-  <div>
+  <div app-control-wrapper>
     <label for="description">
       <span>Description: </span>
       <textarea name="description" id="description" rows="5" cols="50"[ngModel]="vm.formValue.description" 
         required #descriptionCtrl="ngModel" [disabled]="vm.isControlDisabled">
       </textarea>
     </label>
-    @if (descriptionCtrl.errors?.['required'] && descriptionCtrl.dirty) {
-      <div class="form-errors">
-        Description is a required field
-      </div>
-    }
   </div>
-  <div>
+  <div app-control-wrapper>
     <label for="price">
       <span>Price: </span>
       <input name="price" id="price" type="number" min="1" [ngModel]="vm.formValue.price"
       required #priceCtrl="ngModel" [disabled]="vm.isControlDisabled" />
     </label>
-    @if (priceCtrl.errors?.['min'] && priceCtrl.dirty) {
-      <div class="form-errors">
-        Price must be at least 1
-      </div>
-    } @else if (priceCtrl.errors?.['required'] && priceCtrl.dirty) {
-      <div class="form-errors">
-        Price is a required field
-      </div>
-    }
   </div>
   <button type="submit" [disabled]="vm.isFormDisabled">Submit</button>
 

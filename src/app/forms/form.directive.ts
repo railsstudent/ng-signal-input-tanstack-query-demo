@@ -22,6 +22,10 @@ export class FormDirective<T> {
         }
       }    
     });
+
+    this.ngForm.ngSubmit.subscribe(() => {
+      this.ngForm.form.markAllAsTouched();
+    });
   }
 
   @Output()

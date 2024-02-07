@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, signal } f
 import { FormsModule } from '@angular/forms';
 import { QueryClient, injectMutation } from '@tanstack/angular-query-experimental';
 import { FormDirective, FormModelDirective } from '../../forms';
+import { FormControlWrapperComponent } from '../../forms/form-control-wrapper/form-control-wrapper.component';
 import { Product } from '../../products/interfaces/product.interface';
 import { ProductService } from '../../products/services/product.service';
 import { CategoryProducts } from '../interfaces/category-products.interface';
@@ -16,7 +17,7 @@ const INITIAL_FORM_VALUES = { title: '', description: '', price: 1 };
 @Component({
   selector: 'app-create-product',
   standalone: true,
-  imports: [FormsModule, TitleCasePipe, FormDirective, FormModelDirective],
+  imports: [FormsModule, TitleCasePipe, FormDirective, FormModelDirective, FormControlWrapperComponent],
   templateUrl: './create-product.component.html',
   styles: `
     form {
