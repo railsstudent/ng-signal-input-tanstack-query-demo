@@ -2,14 +2,14 @@ import { TitleCasePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { QueryClient, injectMutation } from '@tanstack/angular-query-experimental';
-import { FormDirective, FormModelDirective } from '../../forms';
+import { FormDirective, FormModelDirective, validateShape } from '../../forms';
 import { FormControlWrapperComponent } from '../../forms/form-control-wrapper/form-control-wrapper.component';
 import { Product } from '../../products/interfaces/product.interface';
 import { ProductService } from '../../products/services/product.service';
 import { CategoryProducts } from '../interfaces/category-products.interface';
 import { CreateProductViewModel } from '../interfaces/create-product.interface';
 import { CategoryService } from '../services/category.service';
-import { CreateProductFormModel } from '../types/create-product-form-model.type';
+import { CreateProductFormModel, createProductFormShape } from '../types/create-product-form-model.type';
 import { createProductValidations } from '../validations/create-product.validations';
 
 const INITIAL_FORM_VALUES = { title: '', description: '', price: 1 };
@@ -144,5 +144,10 @@ export class CreateProductComponent {
       image,
     };
     this.mutation.mutate(payload);
+  }
+
+  setFormValue(modelValue: CreateProductFormModel) {
+    this.formValue.set(modelValue);
+    validateShape(modelValue, createProductFormShape);
   }
 }

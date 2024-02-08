@@ -1,19 +1,19 @@
 <h3>Create new product in {{ vm.category | titlecase }}</h3>
-<form (ngSubmit)="createProduct()" (formValueChange)="formValue.set($event)" 
+<form (ngSubmit)="createProduct()" (formValueChange)="setFormValue($event)" 
   (invalidChange)="formInvalid.set($event)" [shouldMarkAsUntouched]="shouldMarkAsUntouched()"
   [formValue]="formValue()" [suite]="suite()" [alwaysTriggerValidations]="true">
   <div app-control-wrapper>
     <label for="name">
       <span>Title: </span>
       <input name="title" id="title" [ngModel]="vm.formValue.title" required minlength="3"
-        #titleCtrl="ngModel" [disabled]="vm.isControlDisabled" />
+        [disabled]="vm.isControlDisabled" />
     </label>
   </div>
   <div app-control-wrapper>
     <label for="description">
       <span>Description: </span>
       <textarea name="description" id="description" rows="5" cols="50"[ngModel]="vm.formValue.description" 
-        required #descriptionCtrl="ngModel" [disabled]="vm.isControlDisabled">
+        [disabled]="vm.isControlDisabled">
       </textarea>
     </label>
   </div>
@@ -21,7 +21,7 @@
     <label for="price">
       <span>Price: </span>
       <input name="price" id="price" type="number" min="1" [ngModel]="vm.formValue.price"
-      required #priceCtrl="ngModel" [disabled]="vm.isControlDisabled" />
+      required [disabled]="vm.isControlDisabled" />
     </label>
   </div>
   <button type="submit">Submit</button>
