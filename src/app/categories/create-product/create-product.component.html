@@ -1,7 +1,7 @@
 <h3>Create new product in {{ vm.category | titlecase }}</h3>
 <form (ngSubmit)="createProduct()" (formValueChange)="formValue.set($event)" 
   (invalidChange)="formInvalid.set($event)" [shouldMarkAsUntouched]="shouldMarkAsUntouched()"
-  [formValue]="formValue()" [suite]="suite()">
+  [formValue]="formValue()" [suite]="suite()" [alwaysTriggerValidations]="true">
   <div app-control-wrapper>
     <label for="name">
       <span>Title: </span>
